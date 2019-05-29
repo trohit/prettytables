@@ -23,38 +23,29 @@ def str_from_bytes(my_bytes):
     as_str = my_bytes.decode()
     return as_str
 
-
-def read_from_url_csv(csv_url):
+def get_pretty_table_from_url(csv_url):
+    pt = prettytable.PrettyTable()
     response = urllib.request.urlopen(csv_url)
-    cr = csv.reader(response)
-    print(type(cr))
-    print(dir(cr))
-    r = requests.get(csv_url)
-    text = r.iter_lines()
-    reader = csv.reader(text, delimiter=',')
-    print(type(cr))
-    return cr
-
-def read_from_url(url):
-    dd = urllib.request.urlopen(csv_url)
-    for l in dd:
-        pp = l.strip().split(',')
-        print(l)
-
-def pretty_print_table_from_file(csv_file):    
-    # from url
-    # http://winterolympicsmedals.com/medals.csv
-    # as a file
-    with open(csv_file, "r") as fp: 
-        x = prettytable.from_csv(fp)    
-    print(x)
+    line_count = 0
+    for line_bytes in response:
+        line_count = line_count + 1
+        #print("processing line " + str(line_count))
+        #print(line_bytes.decode().strip().split(','))
+        if line_count == 1:
+            hdr_bytes = line_bytes
+            hdr_ll_str = hdr_bytes.decode().strip().split(',')
+            new_hdr = [z.replace('"','') for z in hdr_ll_str]
+            print(new_hdr)
+            pt.field_names = new_hdr 
+        else:
+            row_bytes = line_bytes
+            row_ll_str = row_bytes.decode().strip().split(',')
+            new_row = [z.replace('"','') for z in row_ll_str]
+            pt.add_row(new_row)
+    return pt        
     
 if __name__ == "__main__":
     print("******start*****")
-    rr = read_from_url_csv(csv_url)
+    print(get_pretty_table_from_url(csv_url))
     print("~~~~~~end~~~~~~")
-    
-    #csv_file = "/Users/rohittalukdar/data/medals.csv"
-    #pretty_print_table_from_file(csv_file)
-    #print("~~~~~~ the end~~~~~~")
     
